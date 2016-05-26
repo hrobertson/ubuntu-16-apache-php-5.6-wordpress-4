@@ -1,0 +1,24 @@
+version: '2'
+services:
+  wordpress:
+    hostname: wordpress
+    container_name: wordpress
+    build: .
+    image: wordpress
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    links:
+      - mysql
+
+  mysql:
+    hostname: mysql
+    container_name: mysql
+    image: 1and1internet/ubuntu-16-mariadb-10.0
+    environment:
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: EnvVarHere
+      MYSQL_DATABASE: wordpress
+
+
