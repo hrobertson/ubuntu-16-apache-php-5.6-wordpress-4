@@ -7,6 +7,9 @@ services:
     image: wordpress
     ports:
       - "8080:8080"
+    user: "100000"
+    environment:
+        SUPERVISORD_LOGLEVEL: debug
     depends_on:
       - mysql
     links:
@@ -15,10 +18,13 @@ services:
   mysql:
     hostname: mysql
     container_name: mysql
-    image: 1and1internet/ubuntu-16-mariadb-10.0
+    image: 1and1internet/ubuntu-16-nginx-1.10.0-php-7.0-phpmyadmin-4.6-mysql-5.7:unstable
+    user: "100000"
+    ports:
+        - "8081:8080"
+        - "3306:3306"
     environment:
-      MYSQL_USER: wordpress
+      MYSQL_USER: username
       MYSQL_PASSWORD: EnvVarHere
-      MYSQL_DATABASE: wordpress
-
-
+      MYSQL_DATABASE: databasename
+      MYSQL_ROOT_PASSWORD: rootroot1!
