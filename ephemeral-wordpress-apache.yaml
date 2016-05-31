@@ -1,0 +1,319 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: ephemeral-wordpress-apache.yaml
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: mysql
+    name: mysql
+  spec:
+    replicas: 1
+    selector:
+      app: mysql
+      deploymentconfig: mysql
+    strategy:
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/container.mysql.image.entrypoint: '["container-entrypoint","run-mysqld"]'
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: mysql
+          deploymentconfig: mysql
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_DATABASE
+            value: databasename
+          - name: MYSQL_PASSWORD
+            value: EnvVarHere
+          - name: MYSQL_ROOT_PASSWORD
+            value: largebob
+          - name: MYSQL_USER
+            value: username
+          image: centos/mysql-56-centos7@sha256:71c53370d49aac48ec093de8daed44dd656771baf5b75d1432debb7a4fdedb55
+          imagePullPolicy: Always
+          name: mysql
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/mysql/data
+            name: mysql-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: mysql-volume-1
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - mysql
+        from:
+          kind: ImageStreamTag
+          name: mysql:latest
+          namespace: openshift
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: wordpresstest
+    name: wordpresstest
+  spec:
+    replicas: 1
+    selector:
+      app: wordpresstest
+      deploymentconfig: wordpresstest
+    strategy:
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/container.wordpresstest.image.entrypoint: '["/bin/bash","-e","/init/entrypoint","run"]'
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: wordpresstest
+          deploymentconfig: wordpresstest
+      spec:
+        containers:
+        - env:
+          - name: WORDPRESS_DB_HOST
+            value: mysql-1
+          - name: WORDPRESS_DB_NAME
+            value: databasename
+          - name: WORDPRESS_DB_PASSWORD
+            value: EnvVarHere
+          - name: WORDPRESS_DB_PREFIX
+            value: wp_
+          - name: WORDPRESS_DB_USER
+            value: username
+          image: 1and1internet/ubuntu-16-apache-2.4-php-5.6-wordpress@sha256:55087768084b0b41fe70c5b84258cbd2275b70780c4963f68031c6e7e6849563
+          imagePullPolicy: IfNotPresent
+          name: wordpresstest
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - wordpresstest
+        from:
+          kind: ImageStreamTag
+          name: wordpresstest:unstable
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    labels:
+      app: mysql
+    name: mysql
+  spec:
+    host: mysql-wordpresstemplatetest.gb-je06.live-paas.net
+    port:
+      targetPort: 3306-tcp
+    to:
+      kind: Service
+      name: mysql
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2016-05-31T14:23:25Z
+        status: "True"
+        type: Admitted
+      host: mysql-wordpresstemplatetest.gb-je06.live-paas.net
+      routerName: router
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    labels:
+      app: wordpresstest
+    name: wordpresstest
+  spec:
+    host: wordpresstest-wordpresstemplatetest.gb-je06.live-paas.net
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: wordpresstest
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2016-05-31T14:19:41Z
+        status: "True"
+        type: Admitted
+      host: wordpresstest-wordpresstemplatetest.gb-je06.live-paas.net
+      routerName: router
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: mysql
+    name: mysql
+  spec:
+    ports:
+    - name: 3306-tcp
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      app: mysql
+      deploymentconfig: mysql
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: wordpresstest
+    name: wordpresstest
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: wordpresstest
+      deploymentconfig: wordpresstest
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/created-by: |
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"wordpresstemplatetest","name":"mysql-1","uid":"eac9bd38-2739-11e6-8558-0050562d0c11","apiVersion":"v1","resourceVersion":"14520264"}}
+      openshift.io/container.mysql.image.entrypoint: '["container-entrypoint","run-mysqld"]'
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: mysql
+      openshift.io/deployment.name: mysql-1
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    generateName: mysql-1-
+    labels:
+      app: mysql
+      deployment: mysql-1
+      deploymentconfig: mysql
+  spec:
+    containers:
+    - env:
+      - name: MYSQL_DATABASE
+        value: databasename
+      - name: MYSQL_PASSWORD
+        value: EnvVarHere
+      - name: MYSQL_ROOT_PASSWORD
+        value: largebob
+      - name: MYSQL_USER
+        value: username
+      image: centos/mysql-56-centos7@sha256:71c53370d49aac48ec093de8daed44dd656771baf5b75d1432debb7a4fdedb55
+      imagePullPolicy: Always
+      name: mysql
+      ports:
+      - containerPort: 3306
+        protocol: TCP
+      resources: {}
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000560000
+        seLinuxOptions:
+          level: s0:c24,c4
+      terminationMessagePath: /dev/termination-log
+      volumeMounts:
+      - mountPath: /var/lib/mysql/data
+        name: mysql-volume-1
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-s0nny
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    host: node03.mgmt.gb-je06.live-paas.net
+    imagePullSecrets:
+    - name: default-dockercfg-4ztjl
+    nodeName: node03.mgmt.gb-je06.live-paas.net
+    nodeSelector:
+      region: primary
+    restartPolicy: Always
+    securityContext:
+      fsGroup: 1000560000
+      seLinuxOptions:
+        level: s0:c24,c4
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    volumes:
+    - emptyDir: {}
+      name: mysql-volume-1
+    - name: default-token-s0nny
+      secret:
+        secretName: default-token-s0nny
+  status:
+    phase: Pending
