@@ -63,7 +63,7 @@ objects:
             name: ${DATABASE_SERVICE_NAME}-data
         restartPolicy: Always
         securityContext:
-          runAsUser: 1000650000 
+          runAsUser: ${OPENSHIFT_USER}
         volumes:
         - emptyDir:
             medium: ""
@@ -114,7 +114,7 @@ objects:
             name: wordpress-data
         restartPolicy: Always
         securityContext:
-          runAsUser: 1000650000 
+          runAsUser: ${OPENSHIFT_USER} 
         volumes:
         - emptyDir:
             medium: ""
@@ -217,3 +217,6 @@ parameters:
   generate: expression
   name: WORDPRESS_DB_PREFIX
   required: true
+- description: Openshift User
+  displayname: Openshift User
+  name: OPENSHIFT_USER
