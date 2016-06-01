@@ -59,7 +59,7 @@ objects:
             privileged: false
           terminationMessagePath: /dev/termination-log
           volumeMounts:
-          - mountPath: /var/lib/mysql/data
+          - mountPath: /var/lib/mysql/
             name: ${DATABASE_SERVICE_NAME}-data
         restartPolicy: Always
         securityContext:
