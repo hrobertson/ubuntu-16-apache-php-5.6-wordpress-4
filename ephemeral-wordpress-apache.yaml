@@ -3,7 +3,7 @@ kind: Template
 metadata:
   annotations:
     description: Ephemeral WordPress content management system (CMS)
-  name: 1and1-wordpress-apache-ephemeral
+  name: jp-1and1-wordpress-apache-ephemeral
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
@@ -22,7 +22,7 @@ objects:
     template:
       metadata:
         labels:
-         name: ${DATABASE_SERVICE_NAME}
+          name: ${DATABASE_SERVICE_NAME}
           service: mysql
         name: ${DATABASE_SERVICE_NAME}
       spec:
@@ -36,11 +36,13 @@ objects:
             value: ${DATABASE_ADMIN_PASSWORD}
           - name: MYSQL_USER
             value: ${WORDPRESS_DB_USER}
-          image: centos/mysql-56-centos7@sha256:71c53370d49aac48ec093de8daed44dd656771baf5b75d1432debb7a4fdedb55
+          image: 1and1internet/ubuntu-16-nginx-1.10.0-php-7.0-phpmyadmin-4.6-mysql-5.7:unstable 
           imagePullPolicy: Always
           name: ${DATABASE_SERVICE_NAME}
           ports:
           - containerPort: 3306
+            protocol: TCP
+          - containerPort: 8080
             protocol: TCP
           readinessProbe:
             exec:
@@ -59,6 +61,9 @@ objects:
           volumeMounts:
           - mountPath: /var/lib/mysql/data
             name: ${DATABASE_SERVICE_NAME}-data
+        restartPolicy: Always
+        securityContext:
+          runAsUser: 1000650000 
         volumes:
         - emptyDir:
             medium: ""
@@ -98,7 +103,7 @@ objects:
             value: ${WORDPRESS_DB_PREFIX}
           - name: WORDPRESS_DB_USER
             value: ${WORDPRESS_DB_USER}
-          image: 1and1internet/ubuntu-16-apache-2.4-php-5.6-wordpress
+          image: 1and1internet/ubuntu-16-apache-2.4-php-5.6-wordpress:unstable
           imagePullPolicy: Always
           name: ${APP_SERVICE_NAME}
           ports:
@@ -107,6 +112,9 @@ objects:
           volumeMounts:
           - mountPath: /var/www/html
             name: wordpress-data
+        restartPolicy: Always
+        securityContext:
+          runAsUser: 1000650000 
         volumes:
         - emptyDir:
             medium: ""
@@ -120,7 +128,8 @@ objects:
   spec:
     host: ${APPLICATION_DOMAIN}
     port:
-      targetPort: 8080-tcp
+      targetPort: 8080
+      protocol: TCP
     to:
       kind: Service
       name: ${APP_SERVICE_NAME}
@@ -136,6 +145,10 @@ objects:
       port: 3306
       protocol: TCP
       targetPort: 3306
+    - name: ${DATABASE_SERVICE_NAME}-phpmyadmin
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
     selector:
       name: ${DATABASE_SERVICE_NAME}
     sessionAffinity: None
@@ -157,12 +170,6 @@ objects:
     sessionAffinity: None
     type: ClusterIP
 parameters:
-- description: Password for the WordPress database user
-  displayName: Database password
-  from: '[a-zA-Z0-9]{24}'
-  generate: expression
-  name: DEFAULT_DATABASE_PASSWORD
-  required: true
 - description: Password for the database admin user which you can use to administer
     the database
   displayName: Database administrator password
@@ -182,29 +189,31 @@ parameters:
   generate: expression
   name: DATABASE_SERVICE_NAME
   required: true
-- description: Database admin service name
-  displayName: Database admin service name
-  from: dbadmin[0-9]{3}
-  generate: expression
-  name: DATABASE_ADMIN_SERVICE_NAME
-  required: true
 - description: Wordpress default URL
   displayname: Website URL
   name: APPLICATION_DOMAIN
+  required: true
 - description: Wordpress Database Name
   displayname: Wordpress Database Name
   name: WORDPRESS_DB_NAME
+  from: wordpressdb[0-9]{3}
+  generate: expression
   required: true
 - description: Wordpress Database User
   displayname: Wordpress Database User
   name: WORDPRESS_DB_USER
+  from: wp-db-user[0-9]{3}
+  generate: expression
   required: true
 - description: Wordpress Database Password
   displayname: Wordpress Database Password
+  from: '[a-zA-Z0-9]{24}'
+  generate: expression
   name: WORDPRESS_DB_PASSWORD
   required: true
 - description: Wordpress Database Prefix
   displayname: Wordpress Database Prefix
   from: wp_
+  generate: expression
   name: WORDPRESS_DB_PREFIX
   required: true
