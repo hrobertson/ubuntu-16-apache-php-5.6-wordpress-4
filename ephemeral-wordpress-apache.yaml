@@ -220,3 +220,4 @@ parameters:
 - description: Openshift User
   displayname: Openshift User
   name: OPENSHIFT_USER
+  required: true
