@@ -61,7 +61,7 @@ objects:
             value: ${DEFAULT_DATABASE_PASSWORD}
           - name: WORDPRESS_DB_NAME
             value: wordpress
-          image: 1and1internet/docker-ubuntu-16-apache-2.4-php-5.6-wordpress
+          image: 1and1internet/docker-ubuntu-16-apache-2.4-php-5.6-wordpress:latest
           imagePullPolicy: Always
           name: ${APP_SERVICE_NAME}
           ports:
@@ -124,7 +124,7 @@ objects:
             value: ${DATABASE_ADMIN_PASSWORD}
           - name: DATABASE_ADMIN_PASSWORD
             value: ${DATABASE_ADMIN_PASSWORD}
-          image: 1and1internet/ubuntu-16-mariadb-10.0
+          image: 1and1internet/ubuntu-16-nginx-1.10.0-php-7.0-phpmyadmin-4.6-mariadb-1.10.0:latest
           imagePullPolicy: Always
           livenessProbe:
             initialDelaySeconds: 30
