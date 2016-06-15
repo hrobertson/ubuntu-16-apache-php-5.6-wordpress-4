@@ -15,7 +15,7 @@ if not ENV['IMAGE'] then
   puts "You must provide an IMAGE env variable"
 end
 
-@network = Docker::Network.create "wordpresstest1"
+#@network = Docker::Network.create "wordpresstest1"
 #@mysqlimage = Docker::Image.create('fromImage' => 'mysql:latest')
 #@container = Docker::Container.create(
 #  'name'           => MYSQL_HOST,
@@ -43,9 +43,9 @@ RSpec.configure do |c|
   set :docker_image, @image.id
   set :docker_container_create_options, {
       'User'           => '100000',
-      'Host Config'    => {
-         'NetworkMode' => @network.info["Name"],
-      },
+      #'Host Config'    => {
+      #   'NetworkMode' => @network.info["Name"],
+      #},
       'Env'            => [
         "WORDPRESS_DB_USER=#{MYSQL_USER}",
         "WORDPRESS_DB_PASSWORD=#{MYSQL_PASSWORD}",
@@ -69,4 +69,4 @@ end
 
 #@container.kill
 #@container.delete
-@network.delete
+#@network.delete
