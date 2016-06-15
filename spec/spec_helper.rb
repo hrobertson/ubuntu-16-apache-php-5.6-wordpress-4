@@ -15,7 +15,7 @@ if not ENV['IMAGE'] then
   puts "You must provide an IMAGE env variable"
 end
 
-@network = Docker::Network.create "wordpresstest"
+@network = Docker::Network.create "wordpresstest1"
 #@mysqlimage = Docker::Image.create('fromImage' => 'mysql:latest')
 #@container = Docker::Container.create(
 #  'name'           => MYSQL_HOST,
