@@ -1,11 +1,11 @@
 require 'serverspec'
 require 'docker'
 
-#MYSQL_ROOT_PASSWORD="super-secret-password"
-#MYSQL_USER="fhwordpresstest"
-#MYSQL_PASSWORD="super-secret-password1"
-#MYSQL_DATABASE="fhwordpresstest"
-#MYSQL_HOST="mysqltesting"
+MYSQL_ROOT_PASSWORD="super-secret-password"
+MYSQL_USER="fhwordpresstest"
+MYSQL_PASSWORD="super-secret-password1"
+MYSQL_DATABASE="fhwordpresstest"
+MYSQL_HOST="mysqltesting"
 
 #Include Tests
 base_spec_dir = Pathname.new(File.join(File.dirname(__FILE__)))
