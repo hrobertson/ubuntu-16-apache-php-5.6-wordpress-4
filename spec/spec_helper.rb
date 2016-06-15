@@ -67,6 +67,6 @@ RSpec.configure do |c|
   end
 end
 
-#@container.kill
-#@container.delete
-#@network.delete
+@container.kill
+@container.delete
+@network.delete
