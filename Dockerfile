@@ -4,8 +4,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 COPY files/ /
 
-WORKDIR /var/www/html
-
 # Environment variables for the MySQL DB
 ENV WORDPRESS_DB_HOST=mysql \
     WORDPRESS_DB_USER=username \
