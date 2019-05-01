@@ -25,6 +25,6 @@ a2enmod rewrite expires &&\
     echo 'opcache.enable_cli=1'; \
   } > /etc/php/5.6/apache2/conf.d/10-opcache.ini && \
 #curl -o /usr/src/wordpress.tar.gz -fSL https://wordpress.org/latest.tar.gz &&\
-WORDPRESS_DOWNLOAD=$(curl -fsL https://wordpress.org/download/release-archive/ | grep -Eo 'https://wordpress.org/wordpress-4.[0-9]{1,2}.[0-9]{1,2}.tar.gz' | sort -nr | uniq | head -1) && \
+WORDPRESS_DOWNLOAD=$(curl -fsL https://wordpress.org/download/release-archive/ | grep -Eo 'https://wordpress.org/wordpress-4.[0-9\.]{1,4}.tar.gz' | head -1) && \
 curl -fsL $WORDPRESS_DOWNLOAD -o /usr/src/wordpress.tar.gz && \
 chmod -R 755 /hooks /init
